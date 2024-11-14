@@ -94,10 +94,13 @@ class Patcher:
                     if prop.is_a("IfcPropertySingleValue") and prop.Name == self.source_property_name:
                         value = prop.NominalValue.wrappedValue if prop.NominalValue else None
             elif definition.is_a("IfcElementQuantity"):
-                qtos[definition.Name] = definition
-                for quantity in definition.Quantities:
-                    if quantity.is_a("IfcPhysicalSimpleQuantity") and quantity.Name == self.destination_quantity_name:
-                        has_quantity = True
+                try:
+                    qtos[definition.Name] = definition
+                    for quantity in definition.Quantities:
+                        if quantity.is_a("IfcPhysicalSimpleQuantity") and quantity.Name == self.destination_quantity_name:
+                            has_quantity = True
+                except Exception as e:
+                    self.logger.info(f"Failed to process IfcElementQuantity for product {product.GlobalId}: {e}")
 
         if value and not has_quantity:
             qto_name = self.get_qto_name(product.is_a()) or "UnnamedQset"
